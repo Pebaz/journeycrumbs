@@ -1,41 +1,233 @@
-<head>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-</head>
+<!--
+Create a link to this same page but with a fragment containing compressed data
+that contains URLs and descriptions for those URLs describing a journey.
+-->
 
-<body>
-    <div id="capture">
-        <div>
+<!-- TODO: Need to use the CDN with the tracker script? Not portable? -->
+
+<html>
+    <head>
+        <!-- Get the lz-string library to work? Just base64 json? -->
+        <!-- https://pieroxy.net/blog/pages/lz-string/index.html#inline_menu_6 -->
+        <script>
+            function update_size()
+            {
+                // TODO(pbz): This is incorrect because the full size of the
+                // TODO(pbz): hostname part of the URL is not taken into account
+                const MAX_FRAGMENT_SIZE = 2048;
+                var journey_crumbs = generate_journey_crumbs();
+                var full_url = window.location + '#' + journey_crumbs;
+                var fragment_size = document.getElementById("fragment-size");
+                fragment_size.value = journey_crumbs.length / MAX_FRAGMENT_SIZE;
+            }
+
+            function new_crumb()
+            {
+                var crumb = document
+                    .getElementById("journey-crumb")
+                    .cloneNode(true);
+
+                crumb.querySelector('input[name="crumb-url"]').value = null;
+                crumb.querySelector('input[name="crumb-desc"]').value = null;
+
+                document.getElementById("crumbs").appendChild(crumb);
+            }
+
+            function generate_journey_crumbs()
+            {
+                var urls = document.getElementsByName("crumb-url");
+                var descriptions = document.getElementsByName("crumb-desc");
+                var journey = [];
+
+                urls.forEach((url, index) => {
+                    if (url.value)
+                    {
+                        var desc = descriptions[index];
+
+                        journey.push([url.value, desc.value]);
+                    }
+                });
+
+                console.log(journey);
+
+                var json = JSON.stringify(journey);
+                var base64 = btoa(json);
+
+                var journey_crumbs = encodeURIComponent(base64)
+                console.log(journey_crumbs);
+
+                return journey_crumbs;
+            }
+
+            function update_journey()
+            {
+                var journey_crumbs = generate_journey_crumbs();
+                location.hash = '#' + journey_crumbs;
+                navigator.clipboard.writeText(location);
+            }
+        </script>
+        <style>
+            input[type="text"] {
+                width: 100%;
+                height: 100%;
+                border-radius: 5pt;
+            }
+            .vertical-box {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                row-gap: 16px;
+                width: 100%;
+                /* background-color: aqua; */
+            }
+            .generation-box {
+                display: flex;
+                width: 100%;
+                background-color: blue;
+                height: 48px;
+            }
+
+            @media only screen and (max-width: 550px) {
+                .horizontal-box {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    column-gap: 10%;
+                    width: 100%;
+                    /* background-color: chocolate; */
+                }
+                .row-item {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 48px;
+                    /* background-color: beige; */
+                    width: 90%;
+                }
+                button {
+                    border-radius: 5pt;
+                    width: 100%;
+                }
+            }
+            @media only screen and (min-width: 550px) {
+                .horizontal-box {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    column-gap: 10%;
+                    width: 100%;
+                    /* background-color: chocolate; */
+                }
+                .row-item {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 48px;
+                    /* background-color: beige; */
+                    width: 40%;
+                }
+                button {
+                    border-radius: 5pt;
+                    width: 14   %;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="vertical-box" id="crumbs">
+            <div class="horizontal-box">
+                <div class="generation-box">
+                    <button onclick="new_crumb()">New Crumb</button>
+                    <button onclick="update_journey()">Generate</button>
+                </div>
+            </div>
+            <div>
+                <label for="fragment-size">Fragment Size</label>
+                <progress id="fragment-size" value="0" max="1"></progress>
+            </div>
+            <div class="horizontal-box" id="journey-crumb">
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+                    </svg>
+                    <input type="text" name="crumb-url" placeholder="URL" oninput="update_size()" style="border-radius: 5pt">
+                </div>
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <circle cx="28" cy="28" r="18.5" fill="#90caf9"></circle><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M31.4,41c-2.3,1-4.8,1.5-7.4,1.5C13.8,42.5,5.5,34.2,5.5,24c0-4.5,1.6-8.6,4.2-11.8"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M16.3,7.2c2.3-1.1,5-1.7,7.7-1.7c10.2,0,18.5,8.3,18.5,18.5c0,4-1.3,7.7-3.4,10.7"></path><circle cx="24" cy="16" r="2" fill="#18193f"></circle><line x1="24" x2="24" y1="22.5" y2="33.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-miterlimit="10" stroke-width="3"></line>
+                    </svg>
+                    <input type="text" name="crumb-desc" placeholder="Description" oninput="update_size()" style="border-radius: 5pt">
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden elements -->
+        <div id="template-journey" hidden>
             <p>
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0 0 48 48">
+                <!-- Templatize this -->
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
                     <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
                 </svg>
-                <a href="https://www.microsoft.com">
-                    https://www.microsoft.com
-                </a>
+                <a name="template-journey-url">asdf</a>
             </p>
             <p style="margin-left: 18pt">
-                <i>Here's the website for the Microsoft company</i>
-            </p>
-            <p>
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0 0 48 48">
-                    <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
-                </svg>
-                <a href="https://www.google.com">
-                    https://www.google.com
-                </a>
-            </p>
-            <p style="margin-left: 18pt">
-                <i>Here's the Google company website</i>
+                <i name="template-journey-desc">asdf</i>
             </p>
         </div>
-    </div>
 
-    <hr/>
-    <p>Here's those links converted to a preview image:</p>
-</body>
+        <script>
+            if (window.location.hash.indexOf("#") != -1)
+            {
+                // Render the page rather than show the editor
+                console.log(window.location.hash);
+                console.log(window.location.hash.substring(1));
 
-<script>
-    html2canvas(document.querySelector("#capture")).then(canvas => {
-        document.body.appendChild(canvas)
-    });
-</script>
+                var json = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
+                var template_journey = document.getElementById("template-journey");
+                var nodes = [];
+
+                json.forEach((crumb) => {
+                    var url = crumb[0];
+                    var desc = crumb[1];
+                    console.log(url, desc);
+
+                    var journey_element = template_journey.cloneNode(true);
+                    journey_element.removeAttribute('hidden');
+
+                    var url_element = journey_element.querySelector('[name="template-journey-url"]');
+                    url_element.innerText = url;
+                    url_element.href = url;
+
+                    var desc_element = journey_element.querySelector('i[name="template-journey-desc"]');
+                    desc_element.innerText = desc;
+
+                    nodes.push(journey_element);
+                });
+
+                // Remove all child nodes from body
+                var body = document.body;
+                while (body.firstChild) {
+                    body.removeChild(body.firstChild);
+                }
+
+                // Create a new root element
+                // document.body.innerHTML = '';
+                // var root = document.createElement('body');
+                // newRoot.textContent = 'This is the new root element';
+                // document.body.appendChild(root);
+
+                nodes.forEach(node => {
+                    // root.appendChild(node);
+                    document.body.appendChild(node);
+                });
+
+                // document.body = root;
+            }
+        </script>
+    </body>
+</html>
