@@ -1,0 +1,126 @@
+<!--
+Create a link to this same page but with a fragment containing compressed data
+that contains URLs and descriptions for those URLs describing a journey.
+-->
+
+<!-- TODO: Need to use the CDN with the tracker script? Not portable? -->
+
+<html>
+    <head>
+        <script href="gzip.js"></script>
+        <script>
+            if (window.location.hash.indexOf("#") != -1)
+            {
+                // Render the page rather than show the editor
+                console.log(window.location.hash);
+            }
+        </script>
+        <style>
+            input[type="text"] {
+                width: 100%;
+                height: 100%;
+                border-radius: 5pt;
+            }
+            .vertical-box {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                row-gap: 16px;
+                width: 100%;
+                /* background-color: aqua; */
+            }
+            .generation-box {
+                display: flex;
+                width: 100%;
+                background-color: blue;
+                height: 48px;
+            }
+
+            @media only screen and (max-width: 550px) {
+                .horizontal-box {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    column-gap: 10%;
+                    width: 100%;
+                    /* background-color: chocolate; */
+                }
+                .row-item {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 48px;
+                    /* background-color: beige; */
+                    width: 90%;
+                }
+                button {
+                    border-radius: 5pt;
+                    width: 100%;
+                }
+            }
+            @media only screen and (min-width: 550px) {
+                .horizontal-box {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    column-gap: 10%;
+                    width: 100%;
+                    /* background-color: chocolate; */
+                }
+                .row-item {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 48px;
+                    /* background-color: beige; */
+                    width: 40%;
+                }
+                button {
+                    border-radius: 5pt;
+                    width: 14   %;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="vertical-box">
+            <div class="horizontal-box">
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+                    </svg>
+                    <input type="text" placeholder="URL">
+                </div>
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <circle cx="28" cy="28" r="18.5" fill="#90caf9"></circle><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M31.4,41c-2.3,1-4.8,1.5-7.4,1.5C13.8,42.5,5.5,34.2,5.5,24c0-4.5,1.6-8.6,4.2-11.8"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M16.3,7.2c2.3-1.1,5-1.7,7.7-1.7c10.2,0,18.5,8.3,18.5,18.5c0,4-1.3,7.7-3.4,10.7"></path><circle cx="24" cy="16" r="2" fill="#18193f"></circle><line x1="24" x2="24" y1="22.5" y2="33.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-miterlimit="10" stroke-width="3"></line>
+                    </svg>
+                    <input type="text" placeholder="Description">
+                </div>
+            </div>
+            <!--  -->
+            <div class="horizontal-box">
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+                    </svg>
+                    <input type="text" placeholder="URL" style="border-radius: 5pt">
+                </div>
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <circle cx="28" cy="28" r="18.5" fill="#90caf9"></circle><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M31.4,41c-2.3,1-4.8,1.5-7.4,1.5C13.8,42.5,5.5,34.2,5.5,24c0-4.5,1.6-8.6,4.2-11.8"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M16.3,7.2c2.3-1.1,5-1.7,7.7-1.7c10.2,0,18.5,8.3,18.5,18.5c0,4-1.3,7.7-3.4,10.7"></path><circle cx="24" cy="16" r="2" fill="#18193f"></circle><line x1="24" x2="24" y1="22.5" y2="33.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-miterlimit="10" stroke-width="3"></line>
+                    </svg>
+                    <input type="text" placeholder="Description" style="border-radius: 5pt">
+                </div>
+            </div>
+            <div class="generation-box">
+                <button>Generate</button>
+            </div>
+        </div>
+    </body>
+</html>

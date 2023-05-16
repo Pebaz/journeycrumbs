@@ -1,0 +1,41 @@
+<head>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <div id="capture">
+        <div>
+            <p>
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0 0 48 48">
+                    <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+                </svg>
+                <a href="https://www.microsoft.com">
+                    https://www.microsoft.com
+                </a>
+            </p>
+            <p style="margin-left: 18pt">
+                <i>Here's the website for the Microsoft company</i>
+            </p>
+            <p>
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0 0 48 48">
+                    <path fill="#90caf9" d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path><path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path><line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+                </svg>
+                <a href="https://www.google.com">
+                    https://www.google.com
+                </a>
+            </p>
+            <p style="margin-left: 18pt">
+                <i>Here's the Google company website</i>
+            </p>
+        </div>
+    </div>
+
+    <hr/>
+    <p>Here's those links converted to a preview image:</p>
+</body>
+
+<script>
+    html2canvas(document.querySelector("#capture")).then(canvas => {
+        document.body.appendChild(canvas)
+    });
+</script>
