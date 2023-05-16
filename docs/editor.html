@@ -199,7 +199,12 @@ that contains URLs and descriptions for those URLs describing a journey.
                     var journey_element = template_journey.cloneNode(true);
                     journey_element.removeAttribute('hidden');
 
-                    console.log(journey_element.querySelector('i[name="template-journey-url"]'));
+                    var url_element = journey_element.querySelector('[name="template-journey-url"]');
+                    url_element.innerText = url;
+                    url_element.href = url;
+
+                    var desc_element = journey_element.querySelector('i[name="template-journey-desc"]');
+                    desc_element.innerText = desc;
 
                     nodes.push(journey_element);
                 });
