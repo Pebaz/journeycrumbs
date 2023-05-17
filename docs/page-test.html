@@ -1,4 +1,4 @@
-html>
+<html>
 
 <head>
     <!-- TODO: Make this lib a GitHub pages resource? -->
@@ -23,11 +23,14 @@ html>
         function instantiate_template(template_id) {
             var template = get_templates()[template_id];
 
-            if (template.dataset.model != undefined)
-            {
+            // Templates can have a "brain" class
+            if (template.dataset.model != undefined) {
+                // Get global variable by string name
                 var model_class = eval(template.dataset.model);
-                template.instance = new model_class();
-                template.instance.init(template);
+
+                // Adding arbitrary property
+                template.instance = new model_class(template);
+                template.instance.init();
             }
 
             return template.cloneNode(true);
@@ -134,10 +137,18 @@ html>
 
     <div hidden id="template-try-dataset" data-model="TemplateTryDataSet">
         <script>
-            class TemplateTryDataSet {
-                init(self) {
-                    console.log('init!');
-                    self.innerText = Math.random();
+            class Model {
+                constructor(self) {
+                    this.self = self;
+                }
+
+                init() { }
+            }
+
+            class TemplateTryDataSet extends Model {
+                init() {
+                    console.log('init2');
+                    this.self.innerText = Math.random();
                 }
             }
         </script>
