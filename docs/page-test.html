@@ -1,13 +1,10 @@
-<html>
+html>
 
 <head>
-    <script>
+    <script name="lib-templates">
         const DEFAULT_PAGE = "page-main";
         var current_page = DEFAULT_PAGE;  // Needed to hide pages when switching
-    </script>
-    <script>
-        // Only call on page load. Subsequent calls will return instantiated
-        // templates after `render_templates()` is called.
+
         function get_templates() {
             var template_elements = document.querySelectorAll(
                 '[id^="template-"]'
@@ -21,15 +18,20 @@
             return templates;
         }
 
-        // Template instantiation only happens once so it shouldn't matter if
-        // subsequent calls to `get_templates()` return the instantiated
-        // templates
-        function render_templates() {
-            function instantiate_template(template_id) {
-                var template = get_templates()[template_id];
-                return template.cloneNode(true);
+        function instantiate_template(template_id) {
+            var template = get_templates()[template_id];
+
+            if (template.dataset.model != undefined)
+            {
+                var model_class = eval(template.dataset.model);
+                template.instance = new model_class();
+                template.instance.init(template);
             }
 
+            return template.cloneNode(true);
+        }
+
+        function render_templates() {
             var instances = document.querySelectorAll('[name^="instance-"]');
 
             instances.forEach(element => {
@@ -71,17 +73,25 @@
             show(pages[name]);
         }
 
+        // Usage: get_child_element_by_attribute(element, 'id', 'variable-foo')
+        function get_child_element_by_attribute(element, attr, value) {
+            return element.querySelector(`[${attr}="${value}"]`);
+        }
+
         window.onload = function initialize() {
             switch_page(current_page);
             render_templates();
         };
+    </script>
+    <script>
+
     </script>
 </head>
 
 <body>
     Content
 
-    <!-- Pages are not templates. They are just hidden until needed. -->
+    <!-- Main Page -->
     <div hidden id="page-main">
         <style>
             #page-main p {
@@ -95,8 +105,10 @@
         </style>
         <p>Some content here... </p>
         <div name="instance-external-link"></div>
+        <button onclick="switch_page('page-editor')">↗️</button>
     </div>
 
+    <!-- Page Editor Page -->
     <div hidden id="page-editor">
         <style>
             #page-editor p {
@@ -110,10 +122,25 @@
         </style>
         <a href="https://www.google.com">https://www.google.com</a>
         <div name="instance-external-link"></div>
+        <button onclick="switch_page('page-main')">↙️</button>
     </div>
 
     <p>➡️Some other content⬅️</p>
     <div name="instance-external-link"></div>
+    <div name="instance-try-dataset"></div>
+    <div name="instance-try-dataset"></div>
+
+    <div hidden id="template-try-dataset" data-model="TemplateTryDataSet">
+        <script>
+            class TemplateTryDataSet {
+                init(self) {
+                    console.log('init!');
+                    self.innerText = Math.random();
+                }
+            }
+        </script>
+        🔰
+    </div>
 
     <!-- Templates can be instanced to prevent code duplication -->
     <div hidden id="template-external-link">
