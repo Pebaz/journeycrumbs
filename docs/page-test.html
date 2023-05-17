@@ -5,17 +5,48 @@
         const DEFAULT_PAGE = "template-page-main";
     </script>
     <script>
-        function get_page_templates() {
-            var page_template_elements = document.querySelectorAll(
-                '[id^="template-page-"]'
+        // function get_page_templates() {
+        //     var page_template_elements = document.querySelectorAll(
+        //         '[id^="template-page-"]'
+        //     );
+
+        //     var page_templates = {};
+        //     page_template_elements.forEach(element => {
+        //         page_templates[element.id] = element;
+        //     });
+
+        //     return page_templates;
+        // }
+
+        function get_templates() {
+            var template_elements = document.querySelectorAll(
+                '[id^="template-"]'
             );
 
-            var page_templates = {};
-            page_template_elements.forEach(element => {
-                page_templates[element.id] = element;
+            var templates = {};
+            template_elements.forEach(element => {
+                templates[element.id] = element;
             });
 
-            return page_templates;
+            return templates;
+        }
+
+        function render_templates() {
+            function instantiate_template(template_id) {
+                var template = get_templates()[template_id];
+                return template.cloneNode(true);
+            }
+
+            var instances = document.querySelectorAll('[name^="instance-"]');
+
+            instances.forEach(element => {
+                var node_name = element.getAttribute('name');
+                var template_name = node_name.replace('instance-', 'template-');
+                var instantiated_template = instantiate_template(template_name);
+                show(instantiated_template);
+                var parent = element.parentElement;
+                parent.replaceChild(instantiated_template, element);
+            });
         }
 
         function show(element) {
@@ -27,13 +58,14 @@
         }
 
         window.onload = function initialize() {
-            show(get_page_templates()[DEFAULT_PAGE]);
+            // show(get_page_templates()[DEFAULT_PAGE]);
+            render_templates();
         };
     </script>
 </head>
 
 <body>
-    <div id="template-page-main" hidden>
+    <div hidden id="template-page-main">
         <style>
             #template-page-main p {
                 margin: 1em 0;
@@ -46,7 +78,25 @@
         </style>
         <p>Some content here... </p>
     </div>
+
     <p>Some other content</p>
+    <div name="instance-external-link"></div>
+
+    <div hidden id="template-external-link">
+        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+            <path fill="#90caf9"
+                d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z">
+            </path>
+            <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"
+                stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path>
+            <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"
+                stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path>
+            <line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round"
+                stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line>
+            <polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"
+                stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+        </svg>
+    </div>
 </body>
 
 </html>
