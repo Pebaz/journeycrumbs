@@ -2,22 +2,12 @@
 
 <head>
     <script>
-        const DEFAULT_PAGE = "template-page-main";
+        const DEFAULT_PAGE = "page-main";
+        var current_page = DEFAULT_PAGE;  // Needed to hide pages when switching
     </script>
     <script>
-        // function get_page_templates() {
-        //     var page_template_elements = document.querySelectorAll(
-        //         '[id^="template-page-"]'
-        //     );
-
-        //     var page_templates = {};
-        //     page_template_elements.forEach(element => {
-        //         page_templates[element.id] = element;
-        //     });
-
-        //     return page_templates;
-        // }
-
+        // Only call on page load. Subsequent calls will return instantiated
+        // templates after `render_templates()` is called.
         function get_templates() {
             var template_elements = document.querySelectorAll(
                 '[id^="template-"]'
@@ -31,6 +21,9 @@
             return templates;
         }
 
+        // Template instantiation only happens once so it shouldn't matter if
+        // subsequent calls to `get_templates()` return the instantiated
+        // templates
         function render_templates() {
             function instantiate_template(template_id) {
                 var template = get_templates()[template_id];
@@ -57,31 +50,72 @@
             element.setAttribute('hidden', null);
         }
 
+        function switch_page(name) {
+            function get_page_templates() {
+                var page_template_elements = document.querySelectorAll(
+                    '[id^="page-"]'
+                );
+
+                var page_templates = {};
+                page_template_elements.forEach(element => {
+                    page_templates[element.id] = element;
+                });
+
+                return page_templates;
+            }
+
+            var pages = get_page_templates();
+
+            hide(pages[current_page]);
+            current_page = name;
+            show(pages[name]);
+        }
+
         window.onload = function initialize() {
-            // show(get_page_templates()[DEFAULT_PAGE]);
+            switch_page(current_page);
             render_templates();
         };
     </script>
 </head>
 
 <body>
-    <div hidden id="template-page-main">
+    Content
+
+    <!-- Pages are not templates. They are just hidden until needed. -->
+    <div hidden id="page-main">
         <style>
-            #template-page-main p {
+            #page-main p {
                 margin: 1em 0;
                 color: #900;
             }
 
-            #template-page-main em {
+            #page-main em {
                 color: #900;
             }
         </style>
         <p>Some content here... </p>
+        <div name="instance-external-link"></div>
     </div>
 
-    <p>Some other content</p>
+    <div hidden id="page-editor">
+        <style>
+            #page-editor p {
+                margin: 1em 0;
+                color: #900;
+            }
+
+            #page-editor em {
+                color: #900;
+            }
+        </style>
+        <a href="https://www.google.com">https://www.google.com</a>
+        <div name="instance-external-link"></div>
+    </div>
+
+    <p>➡️Some other content⬅️</p>
     <div name="instance-external-link"></div>
 
+    <!-- Templates can be instanced to prevent code duplication -->
     <div hidden id="template-external-link">
         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
             <path fill="#90caf9"
