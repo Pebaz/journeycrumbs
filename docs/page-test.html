@@ -4,17 +4,23 @@
     <!-- TODO: Make this lib a GitHub pages resource? -->
     <!-- TODO: Possible to have local fallback for script load failure? -->
     <script name="lib-templates">
-        const DEFAULT_PAGE = "page-main";
+        const DEFAULT_PAGE = "main";
         var current_page = DEFAULT_PAGE;  // Needed to hide pages when switching
+
+        function assert(condition, message = 'Assertion failed') {
+            if (!condition) {
+                throw new Error(message);
+            }
+        }
 
         function get_templates() {
             var template_elements = document.querySelectorAll(
-                '[id^="template-"]'
+                '[data-template]'
             );
 
             var templates = {};
             template_elements.forEach(element => {
-                templates[element.id] = element;
+                templates[element.dataset.template] = element;
             });
 
             return templates;
@@ -22,6 +28,10 @@
 
         function instantiate_template(template_id) {
             var template = get_templates()[template_id];
+            assert(template, `Invalid template name: ${template_id}`);
+
+            // TODO(pbz): Since templates are instantiated at runtime, should
+            // TODO(pbz): the name of the new instance be changed to "instance"?
 
             // Templates can have a "brain" class
             if (template.dataset.model != undefined) {
@@ -29,19 +39,18 @@
                 var model_class = eval(template.dataset.model);
 
                 // Adding arbitrary property
-                template.instance = new model_class(template);
-                template.instance.init();
+                template.model_instance = new model_class(template);
+                template.model_instance.init();
             }
 
             return template.cloneNode(true);
         }
 
         function render_templates() {
-            var instances = document.querySelectorAll('[name^="instance-"]');
+            var instances = document.querySelectorAll('[data-instance]');
 
             instances.forEach(element => {
-                var node_name = element.getAttribute('name');
-                var template_name = node_name.replace('instance-', 'template-');
+                var template_name = element.dataset.instance;
                 var instantiated_template = instantiate_template(template_name);
                 show(instantiated_template);
                 var parent = element.parentElement;
@@ -58,20 +67,20 @@
         }
 
         function switch_page(name) {
-            function get_page_templates() {
-                var page_template_elements = document.querySelectorAll(
-                    '[id^="page-"]'
+            function get_pages() {
+                var page_elements = document.querySelectorAll(
+                    '[data-page]'
                 );
 
-                var page_templates = {};
-                page_template_elements.forEach(element => {
-                    page_templates[element.id] = element;
-                });
+                var pages = {};
+                page_elements.forEach(
+                    element => pages[element.dataset.page] = element
+                );
 
-                return page_templates;
+                return pages;
             }
 
-            var pages = get_page_templates();
+            var pages = get_pages();
 
             hide(pages[current_page]);
             current_page = name;
@@ -105,7 +114,7 @@
     Content
 
     <!-- Main Page -->
-    <div hidden id="page-main">
+    <div hidden data-page="main">
         <style>
             #page-main p {
                 margin: 1em 0;
@@ -117,12 +126,12 @@
             }
         </style>
         <p>Some content here... </p>
-        <div name="instance-external-link"></div>
+        <div data-instance="external-link"></div>
         <button onclick="switch_page('page-editor')">↗️</button>
     </div>
 
     <!-- Page Editor Page -->
-    <div hidden id="page-editor">
+    <div hidden data-page="editor">
         <style>
             #page-editor p {
                 margin: 1em 0;
@@ -134,20 +143,19 @@
             }
         </style>
         <a href="https://www.google.com">https://www.google.com</a>
-        <div name="instance-external-link"></div>
+        <div data-instance="external-link"></div>
         <button onclick="switch_page('page-main')">↙️</button>
     </div>
 
     <p>➡️Some other content⬅️</p>
-    <div name="instance-external-link"></div>
-    <div name="instance-try-dataset"></div>
-    <div name="instance-try-dataset"></div>
+    <div data-instance="external-link"></div>
+    <div data-instance="try-dataset"></div>
+    <div data-instance="try-dataset"></div>
 
-    <div hidden id="template-try-dataset" data-model="TemplateTryDataSet">
+    <div hidden data-template="try-dataset" data-model="TemplateTryDataSet">
         <script>
             class TemplateTryDataSet extends Model {
                 init() {
-                    console.log('init2');
                     this.get_child_element_by_attribute('name', 'here').innerText = Math.random();
                 }
             }
@@ -157,7 +165,7 @@
     </div>
 
     <!-- Templates can be instanced to prevent code duplication -->
-    <div hidden id="template-external-link">
+    <div hidden data-template="external-link">
         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
             <path fill="#90caf9"
                 d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z">
