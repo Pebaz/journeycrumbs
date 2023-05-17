@@ -1,65 +1,107 @@
-<!--
-Create a link to this same page but with a fragment containing compressed data
-that contains URLs and descriptions for those URLs describing a journey.
--->
-
-<!-- TODO: Need to use the CDN with the tracker script? Not portable? -->
-
+<!DOCTYPE html>
 <html>
 
 <head>
-    <!-- Get the lz-string library to work? Just base64 json? -->
-    <!-- https://pieroxy.net/blog/pages/lz-string/index.html#inline_menu_6 -->
-    <script>
-        function update_size() {
-            // TODO(pbz): This is incorrect because the full size of the
-            // TODO(pbz): hostname part of the URL is not taken into account
-            const MAX_FRAGMENT_SIZE = 2048;
-            var journey_crumbs = generate_journey_crumbs();
-            var full_url = window.location + '#' + journey_crumbs;
-            var fragment_size = document.getElementById("fragment-size");
-            fragment_size.value = journey_crumbs.length / MAX_FRAGMENT_SIZE;
+    <script name="lib-templates">
+        const DEFAULT_PAGE = "main";
+        var current_page = DEFAULT_PAGE;  // Needed to hide pages when switching
+
+        function assert(condition, message = 'Assertion failed') {
+            if (!condition) {
+                throw new Error(message);
+            }
         }
 
-        function new_crumb() {
-            var crumb = document
-                .getElementById("journey-crumb")
-                .cloneNode(true);
+        function get_templates() {
+            var template_elements = document.querySelectorAll(
+                '[data-template]'
+            );
 
-            crumb.querySelector('input[name="crumb-url"]').value = null;
-            crumb.querySelector('input[name="crumb-desc"]').value = null;
-
-            document.getElementById("crumbs").appendChild(crumb);
-        }
-
-        function generate_journey_crumbs() {
-            var urls = document.getElementsByName("crumb-url");
-            var descriptions = document.getElementsByName("crumb-desc");
-            var journey = [];
-
-            urls.forEach((url, index) => {
-                if (url.value) {
-                    var desc = descriptions[index];
-
-                    journey.push([url.value, desc.value]);
-                }
+            var templates = {};
+            template_elements.forEach(element => {
+                templates[element.dataset.template] = element;
             });
 
-            console.log(journey);
-
-            var json = JSON.stringify(journey);
-            var base64 = btoa(json);
-
-            var journey_crumbs = encodeURIComponent(base64)
-            console.log(journey_crumbs);
-
-            return journey_crumbs;
+            return templates;
         }
 
-        function update_journey() {
-            var journey_crumbs = generate_journey_crumbs();
-            location.hash = '#' + journey_crumbs;
-            navigator.clipboard.writeText(location);
+        function instantiate_template(template_id) {
+            var template = get_templates()[template_id];
+            assert(template, `Invalid template name: ${template_id}`);
+
+            // TODO(pbz): Since templates are instantiated at runtime, should
+            // TODO(pbz): the name of the new instance be changed to "instance"?
+
+            // Templates can have a "brain" class
+            if (template.dataset.model != undefined) {
+                // Get global variable by string name
+                var model_class = eval(template.dataset.model);
+
+                // Adding arbitrary property
+                template.model_instance = new model_class(template);
+                template.model_instance.init();
+            }
+
+            return template.cloneNode(true);
+        }
+
+        function render_templates() {
+            var instances = document.querySelectorAll('[data-instance]');
+
+            instances.forEach(element => {
+                var template_name = element.dataset.instance;
+                var instantiated_template = instantiate_template(template_name);
+                show(instantiated_template);
+                var parent = element.parentElement;
+                parent.replaceChild(instantiated_template, element);
+            });
+        }
+
+        function show(element) {
+            element.removeAttribute('hidden');
+        }
+
+        function hide(element) {
+            element.setAttribute('hidden', null);
+        }
+
+        function switch_page(name) {
+            function get_pages() {
+                var page_elements = document.querySelectorAll(
+                    '[data-page]'
+                );
+
+                var pages = {};
+                page_elements.forEach(
+                    element => pages[element.dataset.page] = element
+                );
+
+                return pages;
+            }
+
+            var pages = get_pages();
+
+            hide(pages[current_page]);
+            current_page = name;
+            show(pages[name]);
+        }
+
+        window.onload = function initialize() {
+            switch_page(current_page);
+            render_templates();
+        };
+
+        class Model {
+            constructor(self) {
+                this.self = self;
+            }
+
+            init() { }
+
+            // Usage: get_child_element_by_attribute(element, 'id', 'variable-foo')
+            get_child_element_by_attribute(attr, value) {
+                return this.self.querySelector(`[${attr}="${value}"]`);
+            }
         }
     </script>
     <style>
@@ -190,130 +232,63 @@ that contains URLs and descriptions for those URLs describing a journey.
             }
         }
     </style>
+    <script name="app">
+
+    </script>
 </head>
 
 <body>
-    <div class="vertical-box" id="crumbs">
-        <div class="horizontal-box">
-            <div class="generation-box">
-                <button onclick="new_crumb()">New Crumb</button>
-                <button onclick="update_journey()">Generate</button>
+    <!-- Main Page -->
+    <div data-page="main">
+        <div class="vertical-box" id="crumbs">
+            <div class="horizontal-box">
+                <div class="generation-box">
+                    <button onclick="new_crumb()">New Crumb</button>
+                    <button onclick="update_journey()">Generate</button>
+                </div>
             </div>
-        </div>
-        <div>
-            <label for="fragment-size">Fragment Size</label>
-            <progress id="fragment-size" value="0" max="1"></progress>
-        </div>
-        <div class="horizontal-box" id="journey-crumb">
-            <div class="row-item">
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
-                    <path fill="#90caf9"
-                        d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z">
-                    </path>
-                    <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path>
-                    <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-miterlimit="10" stroke-width="3"
-                        d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path>
-                    <line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line>
-                    <polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
-                </svg>
-                <input type="text" name="crumb-url" placeholder="URL" oninput="update_size()"
-                    style="border-radius: 5pt">
+            <div>
+                <label for="fragment-size">Fragment Size</label>
+                <progress id="fragment-size" value="0" max="1"></progress>
             </div>
-            <div class="row-item">
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
-                    <circle cx="28" cy="28" r="18.5" fill="#90caf9"></circle>
-                    <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-miterlimit="10" stroke-width="3"
-                        d="M31.4,41c-2.3,1-4.8,1.5-7.4,1.5C13.8,42.5,5.5,34.2,5.5,24c0-4.5,1.6-8.6,4.2-11.8"></path>
-                    <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
-                        stroke-miterlimit="10" stroke-width="3"
-                        d="M16.3,7.2c2.3-1.1,5-1.7,7.7-1.7c10.2,0,18.5,8.3,18.5,18.5c0,4-1.3,7.7-3.4,10.7"></path>
-                    <circle cx="24" cy="16" r="2" fill="#18193f"></circle>
-                    <line x1="24" x2="24" y1="22.5" y2="33.5" fill="none" stroke="#18193f" stroke-linecap="round"
-                        stroke-miterlimit="10" stroke-width="3"></line>
-                </svg>
-                <input type="text" name="crumb-desc" placeholder="Description" oninput="update_size()"
-                    style="border-radius: 5pt">
+            <div class="horizontal-box" id="journey-crumb">
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <path fill="#90caf9"
+                            d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z">
+                        </path>
+                        <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-miterlimit="10" stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path>
+                        <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-miterlimit="10" stroke-width="3"
+                            d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path>
+                        <line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line>
+                        <polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
+                    </svg>
+                    <input type="text" name="crumb-url" placeholder="URL" oninput="update_size()"
+                        style="border-radius: 5pt">
+                </div>
+                <div class="row-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                        <circle cx="28" cy="28" r="18.5" fill="#90caf9"></circle>
+                        <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-miterlimit="10" stroke-width="3"
+                            d="M31.4,41c-2.3,1-4.8,1.5-7.4,1.5C13.8,42.5,5.5,34.2,5.5,24c0-4.5,1.6-8.6,4.2-11.8"></path>
+                        <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-miterlimit="10" stroke-width="3"
+                            d="M16.3,7.2c2.3-1.1,5-1.7,7.7-1.7c10.2,0,18.5,8.3,18.5,18.5c0,4-1.3,7.7-3.4,10.7"></path>
+                        <circle cx="24" cy="16" r="2" fill="#18193f"></circle>
+                        <line x1="24" x2="24" y1="22.5" y2="33.5" fill="none" stroke="#18193f" stroke-linecap="round"
+                            stroke-miterlimit="10" stroke-width="3"></line>
+                    </svg>
+                    <input type="text" name="crumb-desc" placeholder="Description" oninput="update_size()"
+                        style="border-radius: 5pt">
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Hidden elements -->
-    <div id="template-journey" hidden>
-        <p>
-            <!-- Templatize this -->
-            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
-                <path fill="#90caf9"
-                    d="M37,46H17c-3.3,0-6-2.7-6-6V20c0-3.3,2.7-6,6-6h20c3.3,0,6,2.7,6,6v20C43,43.3,40.3,46,37,46z">
-                </path>
-                <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"
-                    stroke-width="3" d="M6.5,20.5v-5c0-3.3,2.7-6,6-6h10"></path>
-                <path fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"
-                    stroke-width="3" d="M38.5,25.5v10c0,3.3-2.7,6-6,6h-20c-3.3,0-6-2.7-6-6v-7"></path>
-                <line x1="23.5" x2="41.5" y1="24.5" y2="6.5" fill="none" stroke="#18193f" stroke-linecap="round"
-                    stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line>
-                <polyline fill="none" stroke="#18193f" stroke-linecap="round" stroke-linejoin="round"
-                    stroke-miterlimit="10" stroke-width="3" points="27.5,6.5 41.5,6.5 41.5,20.5"></polyline>
-            </svg>
-            <a name="template-journey-url">asdf</a>
-        </p>
-        <p style="margin-left: 18pt">
-            <i name="template-journey-desc">asdf</i>
-        </p>
-    </div>
-
-    <script>
-        if (window.location.hash.indexOf("#") != -1) {
-            // Render the page rather than show the editor
-            console.log(window.location.hash);
-            console.log(window.location.hash.substring(1));
-
-            var json = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
-            var template_journey = document.getElementById("template-journey");
-            var nodes = [];
-
-            json.forEach((crumb) => {
-                var url = crumb[0];
-                var desc = crumb[1];
-                console.log(url, desc);
-
-                var journey_element = template_journey.cloneNode(true);
-                journey_element.removeAttribute('hidden');
-
-                var url_element = journey_element.querySelector('[name="template-journey-url"]');
-                url_element.innerText = url;
-                url_element.href = url;
-
-                var desc_element = journey_element.querySelector('i[name="template-journey-desc"]');
-                desc_element.innerText = desc;
-
-                nodes.push(journey_element);
-            });
-
-            // Remove all child nodes from body
-            var body = document.body;
-            while (body.firstChild) {
-                body.removeChild(body.firstChild);
-            }
-
-            // Create a new root element
-            // document.body.innerHTML = '';
-            // var root = document.createElement('body');
-            // newRoot.textContent = 'This is the new root element';
-            // document.body.appendChild(root);
-
-            nodes.forEach(node => {
-                // root.appendChild(node);
-                document.body.appendChild(node);
-            });
-
-            // document.body = root;
-        }
-    </script>
 </body>
 
 </html>
