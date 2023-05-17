@@ -1,0 +1,52 @@
+<html>
+
+<head>
+    <script>
+        const DEFAULT_PAGE = "template-page-main";
+    </script>
+    <script>
+        function get_page_templates() {
+            var page_template_elements = document.querySelectorAll(
+                '[id^="template-page-"]'
+            );
+
+            var page_templates = {};
+            page_template_elements.forEach(element => {
+                page_templates[element.id] = element;
+            });
+
+            return page_templates;
+        }
+
+        function show(element) {
+            element.removeAttribute('hidden');
+        }
+
+        function hide(element) {
+            element.setAttribute('hidden', null);
+        }
+
+        window.onload = function initialize() {
+            show(get_page_templates()[DEFAULT_PAGE]);
+        };
+    </script>
+</head>
+
+<body>
+    <div id="template-page-main" hidden>
+        <style>
+            #template-page-main p {
+                margin: 1em 0;
+                color: #900;
+            }
+
+            #template-page-main em {
+                color: #900;
+            }
+        </style>
+        <p>Some content here... </p>
+    </div>
+    <p>Some other content</p>
+</body>
+
+</html>
