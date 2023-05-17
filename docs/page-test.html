@@ -78,15 +78,23 @@
             show(pages[name]);
         }
 
-        // Usage: get_child_element_by_attribute(element, 'id', 'variable-foo')
-        function get_child_element_by_attribute(element, attr, value) {
-            return element.querySelector(`[${attr}="${value}"]`);
-        }
-
         window.onload = function initialize() {
             switch_page(current_page);
             render_templates();
         };
+
+        class Model {
+            constructor(self) {
+                this.self = self;
+            }
+
+            init() { }
+
+            // Usage: get_child_element_by_attribute(element, 'id', 'variable-foo')
+            get_child_element_by_attribute(attr, value) {
+                return this.self.querySelector(`[${attr}="${value}"]`);
+            }
+        }
     </script>
     <script>
 
@@ -137,22 +145,15 @@
 
     <div hidden id="template-try-dataset" data-model="TemplateTryDataSet">
         <script>
-            class Model {
-                constructor(self) {
-                    this.self = self;
-                }
-
-                init() { }
-            }
-
             class TemplateTryDataSet extends Model {
                 init() {
                     console.log('init2');
-                    this.self.innerText = Math.random();
+                    this.get_child_element_by_attribute('name', 'here').innerText = Math.random();
                 }
             }
         </script>
         🔰
+        <i name="here">ASDF</i>
     </div>
 
     <!-- Templates can be instanced to prevent code duplication -->
