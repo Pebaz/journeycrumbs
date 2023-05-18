@@ -122,10 +122,23 @@
         }
     </script>
     <style>
+        body {
+            font-family: Verdana;
+        }
+
+        a {
+            font-family: Verdana;
+        }
+
+        button {
+            font-family: Verdana;
+        }
+
         input[type="text"] {
             width: 100%;
             height: 100%;
             border-radius: 5pt;
+            font-family: Verdana;
         }
 
         .vertical-box {
@@ -135,13 +148,11 @@
             align-items: flex-start;
             row-gap: 16px;
             width: 100%;
-            /* background-color: aqua; */
         }
 
         .generation-box {
             display: flex;
             width: 100%;
-            /* background-color: blue; */
             height: 48px;
         }
 
@@ -160,38 +171,16 @@
             height: 48px;
         }
 
-        .fade-in-out {
-            animation: fade 3s;
-        }
-
-        @keyframes fade {
-            0% {
-                opacity: 1;
-            }
-
-            /* 90% {
-                opacity: 1;
-            } */
-
-            100% {
-                opacity: 0;
-            }
-        }
-
         /* The order matters for these media queries: */
         @media (max-aspect-ratio: 3/4) {
-            div {
-                background: blue;
-            }
+            /* div { background: blue; } */
 
             .horizontal-box {
                 flex-direction: column;
                 align-items: flex-start;
-                /* background-color: chocolate; */
             }
 
             .row-item {
-                /* background-color: beige; */
                 width: 90%;
             }
 
@@ -202,18 +191,14 @@
         }
 
         @media (min-aspect-ratio: 3/4) and (max-aspect-ratio: 1/1) {
-            div {
-                background: red;
-            }
+            /* div { background: red; } */
 
             .horizontal-box {
                 flex-direction: column;
                 align-items: flex-start;
-                /* background-color: chocolate; */
             }
 
             .row-item {
-                /* background-color: beige; */
                 width: 90%;
             }
 
@@ -224,18 +209,14 @@
         }
 
         @media (min-aspect-ratio: 1/1) and (max-aspect-ratio: 4/3) {
-            div {
-                background: green;
-            }
+            /* div { background: green; } */
 
             .horizontal-box {
                 flex-direction: row;
                 align-items: center;
-                /* background-color: chocolate; */
             }
 
             .row-item {
-                /* background-color: beige; */
                 width: 40%;
             }
 
@@ -246,18 +227,14 @@
         }
 
         @media (min-aspect-ratio: 4/3) {
-            div {
-                background: yellow;
-            }
+            /* div { background: yellow; } */
 
             .horizontal-box {
                 flex-direction: row;
                 align-items: center;
-                /* background-color: chocolate; */
             }
 
             .row-item {
-                /* background-color: beige; */
                 width: 40%;
             }
 
@@ -411,18 +388,6 @@
             <div hidden id="copied-label">
                 Generated link copied to clipboard
             </div>
-            <!-- <div class="horizontal-box" id="journey-crumb">
-                <div class="row-item">
-                    <div data-instance="external-link-icon"></div>
-                    <input type="text" name="crumb-url" placeholder="URL" oninput="update_size()"
-                        style="border-radius: 5pt">
-                </div>
-                <div class="row-item">
-                    <div data-instance="information-icon"></div>
-                    <input type="text" name="crumb-desc" placeholder="Description" oninput="update_size()"
-                        style="border-radius: 5pt">
-                </div>
-            </div> -->
         </div>
     </div>
 
@@ -437,6 +402,7 @@
         * In order to not use an inner div, a class needed to be given to the div which inherits the style from that
         * class. Since the div should be hidden, the display needs to be set to none in the inline style to override.
         * This is an edge case but may come up way more than originally thought.
+        * Perhaps a `data-display="inline"` needs to be kept
     -->
     <div hidden data-template="journey-crumb-editor" class="horizontal-box" style="display: none">
         <div class="row-item">
@@ -466,10 +432,8 @@
                 }
             }
         </script>
-        <p>
         <div data-instance="external-link-icon"></div>
         <a name="template-journey-url"></a>
-        </p>
         <p style="margin-left: 18pt">
             <i name="template-journey-desc"></i>
         </p>
