@@ -456,6 +456,13 @@
             class TemplateJourneyCrumb extends Model {
                 init(variables) {
                     console.log('TemplateJourneyCrumb: ', variables);
+
+                    var url_element = this.get_child_element_by_attribute('name', 'template-journey-url');
+                    url_element.href = variables.journey_url;
+                    url_element.innerText = variables.journey_url;
+
+                    var desc_element = this.get_child_element_by_attribute('name', 'template-journey-desc');
+                    desc_element.innerText = variables.journey_desc;
                 }
             }
         </script>
