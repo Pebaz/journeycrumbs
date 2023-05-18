@@ -139,12 +139,12 @@
             font-family: Verdana;
         }
 
-        #myProgress[value="100"]::-webkit-progress-value {
-            background-color: green;
+        #fragment-size[value="1"] {
+            accent-color: red;
         }
 
-        #myProgress:not([value="100"])::-webkit-progress-value {
-            background-color: blue;
+        #fragment-size:not([value="1"]) {
+            accent-color: green;
         }
 
         .vertical-box {
@@ -176,6 +176,22 @@
             justify-content: flex-start;
             align-items: center;
             height: 48px;
+        }
+
+        #copied-label,
+        #not-copied-label {
+            border-radius: 5pt;
+            padding: 4pt;
+        }
+
+        #copied-label {
+            background-color: rgb(138, 233, 119);
+            color: black;
+        }
+
+        #not-copied-label {
+            background-color: rgb(233, 119, 119);
+            color: white;
         }
 
         /* The order matters for these media queries: */
@@ -252,8 +268,9 @@
         }
     </style>
     <script name="app">
+        const MAX_URL_SIZE = 2048;
+
         function update_size() {
-            const MAX_URL_SIZE = 2048;
             var journey_crumbs = generate_journey_crumbs();
 
             // Have to calculate without assigning to window.location.hash
@@ -267,6 +284,7 @@
 
             var fragment_size = document.getElementById("fragment-size");
             fragment_size.value = full_url.length / MAX_URL_SIZE;
+            fragment_size.value = Math.min(fragment_size.value, 1.0);
         }
 
         function new_crumb(url = '', desc = '') {
@@ -300,13 +318,29 @@
 
         function update_journey() {
             var journey_crumbs = generate_journey_crumbs();
-            location.hash = '#' + journey_crumbs;
-            navigator.clipboard.writeText(location);
-            show_and_fade_out();
-        }
 
-        function show_and_fade_out() {
-            const element = document.getElementById('copied-label');
+            // Have to calculate without assigning to window.location.hash
+            var full_url = (
+                window.location.origin +
+                window.location.pathname +
+                window.location.search +
+                '#' +
+                journey_crumbs
+            );
+
+            var element_to_show;
+
+            if (full_url.length < MAX_URL_SIZE) {
+                location.hash = '#' + journey_crumbs;
+                navigator.clipboard.writeText(location);
+
+                element_to_show = 'copied-label';
+            }
+            else {
+                element_to_show = 'not-copied-label';
+            }
+
+            const element = document.getElementById(element_to_show);
             show(element);
 
             setTimeout(() => {
@@ -384,6 +418,8 @@
             else {
                 new_crumb();
             }
+
+            update_size();
         }
     </script>
 </head>
@@ -405,6 +441,9 @@
             </div>
             <div hidden id="copied-label">
                 Generated link copied to clipboard
+            </div>
+            <div hidden id="not-copied-label">
+                Generated link too large to fit inside max URL length of 2048 characters!
             </div>
         </div>
     </div>
