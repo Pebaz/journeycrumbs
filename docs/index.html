@@ -301,12 +301,11 @@
         }
 
         function view_journey() {
-            if (window.location.hash.length > 1) {
-                // var url = window.location.href;
-                // window.location.hash = '';
-                // window.open(url, '_blank');
+            update_journey();
 
+            var json = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
 
+            if (json.crumbs.length > 0) {
                 var payload = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
                 payload.edit_mode = false;
                 var json = encodeURIComponent(btoa(JSON.stringify(payload)));
@@ -330,40 +329,12 @@
 
                 var json = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
 
-                // Loading page with existing fragment in edit mode
-                if (json.edit_mode) {
-                    switch_page('main');
-
-                    var nodes = [];
-
-                    json.crumbs.forEach((crumb) => {
-                        var url = crumb[0];
-                        var desc = crumb[1];
-                        // var editor = TemplateJourneyCrumbEditor.instance({
-                        //     journey_url: url,
-                        //     journey_desc: desc
-                        // });
-
-                        // show(editor);
-
-                        // nodes.push(editor);
-
-                        new_crumb(url, desc);
-                    });
-
-                    // var page = get_pages()[current_page];
-                    // var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
-
-                    // nodes.forEach(node => {
-                    //     journey_crumbs.appendChild(node);
-                    // });
-                }
-
                 // Loading page with existing fragment to view it
-                else {
+                if (!json.edit_mode && json.crumbs.length > 0) {
                     switch_page('journey-viewer');
 
-                    var nodes = [];
+                    var page = get_pages()[current_page];
+                    var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
 
                     json.crumbs.forEach((crumb) => {
                         var url = crumb[0];
@@ -376,17 +347,24 @@
 
                         show(journey_element);
 
-                        nodes.push(journey_element);
+                        journey_crumbs.appendChild(journey_element);
                     });
+                }
 
-                    var page = get_pages()[current_page];
-                    var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
+                // Loading page with existing fragment in edit mode
+                else {
+                    switch_page('main');
 
-                    nodes.forEach(node => {
-                        journey_crumbs.appendChild(node);
-                    });
-
-                    generate_journey_crumbs();
+                    if (json.crumbs.length > 0) {
+                        json.crumbs.forEach((crumb) => {
+                            var url = crumb[0];
+                            var desc = crumb[1];
+                            new_crumb(url, desc);
+                        });
+                    }
+                    else {
+                        new_crumb();
+                    }
                 }
             }
             else {
