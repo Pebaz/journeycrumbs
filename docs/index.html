@@ -112,8 +112,6 @@
             init(variables) { }
 
             static instance(variables) {
-                console.log(this, '->', this.template);
-
                 var instance = this.template.cloneNode(true);
                 instance.model_instance = new this(instance);
                 instance.model_instance.init(variables);
@@ -141,12 +139,20 @@
             font-family: Verdana;
         }
 
+        #myProgress[value="100"]::-webkit-progress-value {
+            background-color: green;
+        }
+
+        #myProgress:not([value="100"])::-webkit-progress-value {
+            background-color: blue;
+        }
+
         .vertical-box {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
-            row-gap: 16px;
+            row-gap: 32px;
             width: 100%;
         }
 
@@ -161,6 +167,7 @@
             justify-content: flex-start;
             column-gap: 10%;
             width: 100%;
+            row-gap: 10%;
         }
 
         .row-item {
@@ -246,13 +253,20 @@
     </style>
     <script name="app">
         function update_size() {
-            // TODO(pbz): This is incorrect because the full size of the
-            // TODO(pbz): hostname part of the URL is not taken into account
-            const MAX_FRAGMENT_SIZE = 2048;
+            const MAX_URL_SIZE = 2048;
             var journey_crumbs = generate_journey_crumbs();
-            var full_url = window.location + '#' + journey_crumbs;
+
+            // Have to calculate without assigning to window.location.hash
+            var full_url = (
+                window.location.origin +
+                window.location.pathname +
+                window.location.search +
+                '#' +
+                journey_crumbs
+            );
+
             var fragment_size = document.getElementById("fragment-size");
-            fragment_size.value = journey_crumbs.length / MAX_FRAGMENT_SIZE;
+            fragment_size.value = full_url.length / MAX_URL_SIZE;
         }
 
         function new_crumb(url = '', desc = '') {
@@ -415,8 +429,6 @@
         <script>
             class TemplateJourneyCrumbEditor extends Model {
                 init(variables) {
-                    console.log('TemplateJourneyCrumbEditor: ', variables);
-
                     var url_element = this.get_child_element_by_attribute('name', 'crumb-url');
                     url_element.value = variables.journey_url;
 
@@ -441,8 +453,6 @@
         <script>
             class TemplateJourneyCrumb extends Model {
                 init(variables) {
-                    console.log('TemplateJourneyCrumb: ', variables);
-
                     var url_element = this.get_child_element_by_attribute('name', 'template-journey-url');
                     url_element.href = variables.journey_url;
                     url_element.innerText = variables.journey_url;
