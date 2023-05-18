@@ -20,6 +20,12 @@
             var templates = {};
             template_elements.forEach(element => {
                 templates[element.dataset.template] = element;
+
+                // Associate both the template element and the template data model class
+                if (element.dataset.model != undefined) {
+                    element.model_class = eval(element.dataset.model);
+                    element.model_class.template = element;
+                }
             });
 
             return templates;
@@ -29,20 +35,17 @@
             var template = get_templates()[template_id];
             assert(template, `Invalid template name: ${template_id}`);
 
-            // TODO(pbz): Since templates are instantiated at runtime, should
-            // TODO(pbz): the name of the new instance be changed to "instance"?
+            var instanced_template = template.cloneNode(true);
+
+            // TODO(pbz): It might be better to use `data-args="{foo: 'bar', baz: 'qux'}"`
 
             // Templates can have a "brain" class
-            if (template.dataset.model != undefined) {
-                // Get global variable by string name
-                var model_class = eval(template.dataset.model);
-
-                // Adding arbitrary property
-                template.model_instance = new model_class(template);
-                template.model_instance.init();
+            if (template.model_class != undefined) {
+                // Adding arbitrary property to this specific template instance
+                instanced_template.model_instance = new template.model_class(instanced_template);
             }
 
-            return template.cloneNode(true);
+            return instanced_template;
         }
 
         function render_templates() {
@@ -95,15 +98,26 @@
         window.onload = initialize;
 
         class Model {
+            static template = null;  // Make sure to manually set this upon first template instantiation
+
             constructor(self) {
                 this.self = self;
             }
 
-            init() { }
-
             // Usage: get_child_element_by_attribute(element, 'id', 'variable-foo')
             get_child_element_by_attribute(attr, value) {
                 return this.self.querySelector(`[${attr}="${value}"]`);
+            }
+
+            init(variables) { }
+
+            static instance(variables) {
+                console.log(this, '->', this.template);
+
+                var instance = this.template.cloneNode(true);
+                instance.model_instance = new this(instance);
+                instance.model_instance.init(variables);
+                return instance;
             }
         }
     </script>
@@ -328,13 +342,13 @@
             initialize();
 
             if (window.location.hash.length > 1) {
-                /*
+                switch_page('journey-viewer');
+
                 // Render the page rather than show the editor
                 console.log(window.location.hash);
                 console.log(window.location.hash.substring(1));
 
                 var json = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
-                var template_journey = document.getElementById("template-journey");
                 var nodes = [];
 
                 json.forEach((crumb) => {
@@ -342,15 +356,20 @@
                     var desc = crumb[1];
                     console.log(url, desc);
 
-                    var journey_element = template_journey.cloneNode(true);
+                    // var journey_element = template_journey.cloneNode(true);
+                    var journey_element = TemplateJourneyCrumb.instance({
+                        journey_url: url,
+                        journey_desc: desc,
+                    });
+
                     journey_element.removeAttribute('hidden');
 
-                    var url_element = journey_element.querySelector('[name="template-journey-url"]');
-                    url_element.innerText = url;
-                    url_element.href = url;
+                    // var url_element = journey_element.querySelector('[name="template-journey-url"]');
+                    // url_element.innerText = url;
+                    // url_element.href = url;
 
-                    var desc_element = journey_element.querySelector('i[name="template-journey-desc"]');
-                    desc_element.innerText = desc;
+                    // var desc_element = journey_element.querySelector('i[name="template-journey-desc"]');
+                    // desc_element.innerText = desc;
 
                     nodes.push(journey_element);
                 });
@@ -364,8 +383,8 @@
                 nodes.forEach(node => {
                     document.body.appendChild(node);
                 });
-                */
-                switch_page('journey-viewer');
+
+                generate_journey_crumbs();
             }
             else {
                 new_crumb();
@@ -419,13 +438,7 @@
         * class. Since the div should be hidden, the display needs to be set to none in the inline style to override.
         * This is an edge case but may come up way more than originally thought.
     -->
-    <div hidden data-template="journey-crumb-editor" data-model="TemplateJourneyCrumbEditor" class="horizontal-box"
-        style="display: none">
-        <script>
-            class TemplateJourneyCrumbEditor extends Model {
-                init() { }
-            }
-        </script>
+    <div hidden data-template="journey-crumb-editor" class="horizontal-box" style="display: none">
         <div class="row-item">
             <div data-instance="external-link-icon"></div>
             <input type="text" name="crumb-url" placeholder="URL" oninput="update_size()" style="border-radius: 5pt">
@@ -441,7 +454,9 @@
     <div hidden data-template="journey-crumb" data-model="TemplateJourneyCrumb">
         <script>
             class TemplateJourneyCrumb extends Model {
-                init() { }
+                init(variables) {
+                    console.log('TemplateJourneyCrumb: ', variables);
+                }
             }
         </script>
         <p>
