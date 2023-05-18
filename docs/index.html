@@ -328,6 +328,7 @@
             initialize();
 
             if (window.location.hash.length > 1) {
+                /*
                 // Render the page rather than show the editor
                 console.log(window.location.hash);
                 console.log(window.location.hash.substring(1));
@@ -363,6 +364,8 @@
                 nodes.forEach(node => {
                     document.body.appendChild(node);
                 });
+                */
+                switch_page('journey-viewer');
             }
             else {
                 new_crumb();
@@ -406,7 +409,7 @@
 
     <!-- Journey Viewer Page -->
     <div hidden data-page="journey-viewer">
-
+        Hello World!
     </div>
 
     <!-- Journey Crumb Editor Template -->
