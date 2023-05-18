@@ -316,10 +316,18 @@
             }, 3000);
         }
 
+        function view_journey() {
+            if (window.location.hash.length > 1) {
+                var url = window.location.href;
+                window.location.hash = '';
+                window.open(url, '_blank');
+            }
+        }
+
         window.onload = function () {
             initialize();
 
-            if (window.location.hash.indexOf("#") != -1) {
+            if (window.location.hash.length > 1) {
                 // Render the page rather than show the editor
                 console.log(window.location.hash);
                 console.log(window.location.hash.substring(1));
@@ -369,8 +377,9 @@
         <div class="vertical-box" id="crumbs">
             <div class="horizontal-box">
                 <div class="generation-box">
-                    <button onclick="new_crumb()">New Crumb</button>
-                    <button onclick="update_journey()">Generate</button>
+                    <button onclick="new_crumb()">New Crumb ➕</button>
+                    <button onclick="update_journey()">Generate ♻️</button>
+                    <button onclick="view_journey()">View Journey ↗️</button>
                 </div>
             </div>
             <div>
