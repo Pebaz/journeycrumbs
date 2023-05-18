@@ -68,20 +68,20 @@
             element.style.display = 'none';
         }
 
+        function get_pages() {
+            var page_elements = document.querySelectorAll(
+                '[data-page]'
+            );
+
+            var pages = {};
+            page_elements.forEach(
+                element => pages[element.dataset.page] = element
+            );
+
+            return pages;
+        }
+
         function switch_page(name) {
-            function get_pages() {
-                var page_elements = document.querySelectorAll(
-                    '[data-page]'
-                );
-
-                var pages = {};
-                page_elements.forEach(
-                    element => pages[element.dataset.page] = element
-                );
-
-                return pages;
-            }
-
             var pages = get_pages();
 
             hide(pages[current_page]);
@@ -339,7 +339,7 @@
                         journey_desc: desc,
                     });
 
-                    journey_element.removeAttribute('hidden');
+                    show(journey_element);
 
                     // var url_element = journey_element.querySelector('[name="template-journey-url"]');
                     // url_element.innerText = url;
@@ -351,14 +351,22 @@
                     nodes.push(journey_element);
                 });
 
-                // Remove all child nodes from body
-                var body = document.body;
-                while (body.firstChild) {
-                    body.removeChild(body.firstChild);
-                }
+                // // Remove all child nodes from body
+                // var body = document.body;
+                // while (body.firstChild) {
+                //     body.removeChild(body.firstChild);
+                // }
+
+                // nodes.forEach(node => {
+                //     document.body.appendChild(node);
+                // });
+
+
+                var page = get_pages()[current_page];
+                var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
 
                 nodes.forEach(node => {
-                    document.body.appendChild(node);
+                    journey_crumbs.appendChild(node);
                 });
 
                 generate_journey_crumbs();
@@ -393,7 +401,8 @@
 
     <!-- Journey Viewer Page -->
     <div hidden data-page="journey-viewer">
-        Hello World!
+        <div class="vertical-box" id="journey-crumbs">
+        </div>
     </div>
 
     <!-- Journey Crumb Editor Template -->
@@ -432,11 +441,15 @@
                 }
             }
         </script>
-        <div data-instance="external-link-icon"></div>
-        <a name="template-journey-url"></a>
-        <p style="margin-left: 18pt">
-            <i name="template-journey-desc"></i>
-        </p>
+        <div class="vertical-box">
+            <div class="horizontal-box">
+                <div data-instance="external-link-icon"></div>
+                <a name="template-journey-url"></a>
+            </div>
+            <p style="margin-left: 18pt">
+                <i name="template-journey-desc"></i>
+            </p>
+        </div>
     </div>
 
     <!-- External Link Icon Template -->
