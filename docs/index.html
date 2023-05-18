@@ -146,6 +146,24 @@
             height: 48px;
         }
 
+        .fade-in-out {
+            animation: fade 3s;
+        }
+
+        @keyframes fade {
+            0% {
+                opacity: 1;
+            }
+
+            /* 90% {
+                opacity: 1;
+            } */
+
+            100% {
+                opacity: 0;
+            }
+        }
+
         /* The order matters for these media queries: */
         @media (max-aspect-ratio: 3/4) {
             div {
@@ -275,13 +293,9 @@
                 }
             });
 
-            console.log(journey);
-
             var json = JSON.stringify(journey);
             var base64 = btoa(json);
-
             var journey_crumbs = encodeURIComponent(base64)
-            console.log(journey_crumbs);
 
             return journey_crumbs;
         }
@@ -290,6 +304,16 @@
             var journey_crumbs = generate_journey_crumbs();
             location.hash = '#' + journey_crumbs;
             navigator.clipboard.writeText(location);
+            show_and_fade_out();
+        }
+
+        function show_and_fade_out() {
+            const element = document.getElementById('copied-label');
+            show(element);
+
+            setTimeout(() => {
+                hide(element);
+            }, 3000);
         }
 
         window.onload = function () {
@@ -352,6 +376,9 @@
             <div>
                 <label for="fragment-size">Fragment Size</label>
                 <progress id="fragment-size" value="0" max="1"></progress>
+            </div>
+            <div hidden id="copied-label">
+                Generated link copied to clipboard
             </div>
             <!-- <div class="horizontal-box" id="journey-crumb">
                 <div class="row-item">
