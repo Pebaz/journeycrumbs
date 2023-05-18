@@ -302,9 +302,16 @@
 
         function view_journey() {
             if (window.location.hash.length > 1) {
-                var url = window.location.href;
-                window.location.hash = '';
-                window.open(url, '_blank');
+                // var url = window.location.href;
+                // window.location.hash = '';
+                // window.open(url, '_blank');
+
+
+                var payload = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
+                payload.edit_mode = false;
+                var json = encodeURIComponent(btoa(JSON.stringify(payload)));
+                window.location.hash = json;
+                location.reload();
             }
         }
 
@@ -396,7 +403,7 @@
             <div class="horizontal-box">
                 <div class="generation-box">
                     <button onclick="new_crumb()">New Crumb ➕</button>
-                    <button onclick="update_journey()">Generate ♻️</button>
+                    <button onclick="update_journey()">Copy Link ♻️</button>
                     <button onclick="view_journey()">View Journey ↗️</button>
                 </div>
             </div>
