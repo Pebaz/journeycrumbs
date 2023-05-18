@@ -255,18 +255,12 @@
             fragment_size.value = journey_crumbs.length / MAX_FRAGMENT_SIZE;
         }
 
-        function new_crumb() {
-            /*
-            var crumb = document
-                .getElementById("journey-crumb")
-                .cloneNode(true);
-
-            crumb.querySelector('input[name="crumb-url"]').value = null;
-            crumb.querySelector('input[name="crumb-desc"]').value = null;
-
-            document.getElementById("crumbs").appendChild(crumb);
-            */
-            var editor = instantiate_template('journey-crumb-editor');
+        function new_crumb(url = '', desc = '') {
+            // var editor = instantiate_template('journey-crumb-editor');
+            var editor = TemplateJourneyCrumbEditor.instance({
+                journey_url: url,
+                journey_desc: desc,
+            });
             show(editor);
             document.getElementById("crumbs").appendChild(editor);
         }
@@ -284,9 +278,8 @@
                 }
             });
 
-            var json = JSON.stringify(journey);
-            var base64 = btoa(json);
-            var journey_crumbs = encodeURIComponent(base64)
+            var payload = { edit_mode: false, crumbs: journey };
+            var journey_crumbs = encodeURIComponent(btoa(JSON.stringify(payload)));
 
             return journey_crumbs;
         }
@@ -315,61 +308,79 @@
             }
         }
 
+        function edit_journey() {
+            var payload = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
+            payload.edit_mode = true;
+            var json = encodeURIComponent(btoa(JSON.stringify(payload)));
+            window.location.hash = json;
+            location.reload();
+        }
+
         window.onload = function () {
             initialize();
 
             if (window.location.hash.length > 1) {
-                switch_page('journey-viewer');
-
-                // Render the page rather than show the editor
-                console.log(window.location.hash);
-                console.log(window.location.hash.substring(1));
 
                 var json = JSON.parse(atob(decodeURIComponent(window.location.hash.substring(1))));
-                var nodes = [];
 
-                json.forEach((crumb) => {
-                    var url = crumb[0];
-                    var desc = crumb[1];
-                    console.log(url, desc);
+                // Loading page with existing fragment in edit mode
+                if (json.edit_mode) {
+                    switch_page('main');
 
-                    // var journey_element = template_journey.cloneNode(true);
-                    var journey_element = TemplateJourneyCrumb.instance({
-                        journey_url: url,
-                        journey_desc: desc,
+                    var nodes = [];
+
+                    json.crumbs.forEach((crumb) => {
+                        var url = crumb[0];
+                        var desc = crumb[1];
+                        // var editor = TemplateJourneyCrumbEditor.instance({
+                        //     journey_url: url,
+                        //     journey_desc: desc
+                        // });
+
+                        // show(editor);
+
+                        // nodes.push(editor);
+
+                        new_crumb(url, desc);
                     });
 
-                    show(journey_element);
+                    // var page = get_pages()[current_page];
+                    // var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
 
-                    // var url_element = journey_element.querySelector('[name="template-journey-url"]');
-                    // url_element.innerText = url;
-                    // url_element.href = url;
+                    // nodes.forEach(node => {
+                    //     journey_crumbs.appendChild(node);
+                    // });
+                }
 
-                    // var desc_element = journey_element.querySelector('i[name="template-journey-desc"]');
-                    // desc_element.innerText = desc;
+                // Loading page with existing fragment to view it
+                else {
+                    switch_page('journey-viewer');
 
-                    nodes.push(journey_element);
-                });
+                    var nodes = [];
 
-                // // Remove all child nodes from body
-                // var body = document.body;
-                // while (body.firstChild) {
-                //     body.removeChild(body.firstChild);
-                // }
+                    json.crumbs.forEach((crumb) => {
+                        var url = crumb[0];
+                        var desc = crumb[1];
 
-                // nodes.forEach(node => {
-                //     document.body.appendChild(node);
-                // });
+                        var journey_element = TemplateJourneyCrumb.instance({
+                            journey_url: url,
+                            journey_desc: desc,
+                        });
 
+                        show(journey_element);
 
-                var page = get_pages()[current_page];
-                var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
+                        nodes.push(journey_element);
+                    });
 
-                nodes.forEach(node => {
-                    journey_crumbs.appendChild(node);
-                });
+                    var page = get_pages()[current_page];
+                    var journey_crumbs = page.querySelector('[id="journey-crumbs"]');
 
-                generate_journey_crumbs();
+                    nodes.forEach(node => {
+                        journey_crumbs.appendChild(node);
+                    });
+
+                    generate_journey_crumbs();
+                }
             }
             else {
                 new_crumb();
@@ -402,6 +413,7 @@
     <!-- Journey Viewer Page -->
     <div hidden data-page="journey-viewer">
         <div class="vertical-box" id="journey-crumbs">
+            <button onclick="edit_journey()">Edit ✏️</button>
         </div>
     </div>
 
@@ -413,7 +425,21 @@
         * This is an edge case but may come up way more than originally thought.
         * Perhaps a `data-display="inline"` needs to be kept
     -->
-    <div hidden data-template="journey-crumb-editor" class="horizontal-box" style="display: none">
+    <div hidden data-template="journey-crumb-editor" class="horizontal-box" style="display: none"
+        data-model="TemplateJourneyCrumbEditor">
+        <script>
+            class TemplateJourneyCrumbEditor extends Model {
+                init(variables) {
+                    console.log('TemplateJourneyCrumbEditor: ', variables);
+
+                    var url_element = this.get_child_element_by_attribute('name', 'crumb-url');
+                    url_element.value = variables.journey_url;
+
+                    var desc_element = this.get_child_element_by_attribute('name', 'crumb-desc');
+                    desc_element.value = variables.journey_desc;
+                }
+            }
+        </script>
         <div class="row-item">
             <div data-instance="external-link-icon"></div>
             <input type="text" name="crumb-url" placeholder="URL" oninput="update_size()" style="border-radius: 5pt">
